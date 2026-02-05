@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { Plus, Trash2, Save, CheckCircle, Package } from 'lucide-react';
+import { Plus, Trash2, Package, CheckCircle2 } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../config/api';
 import type { CreateStockDocumentPayload } from '../types/warehouse';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 export default function ReceiveStock() {
   const [docNumber, setDocNumber] = useState('');
@@ -51,7 +56,7 @@ export default function ReceiveStock() {
       setLocation('');
       setNotes('');
       setLines([{ id: Date.now(), productId: '', quantity: '', uomId: '' }]);
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => setSuccess(false), 4000);
     },
   });
 
@@ -93,171 +98,207 @@ export default function ReceiveStock() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <Package className="w-7 h-7 text-green-600" />
-          Receive Stock
-        </h2>
-
-        {success && (
-          <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-            <CheckCircle className="w-6 h-6 text-green-600" />
-            <div>
-              <p className="font-semibold text-green-800">Stock received successfully!</p>
-              <p className="text-sm text-green-700">Document has been created in draft status</p>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
+            <Package className="h-6 w-6 text-white" />
           </div>
-        )}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Receive Stock</h2>
+            <p className="text-sm text-gray-500">Create receiving documents for incoming inventory</p>
+          </div>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Header Info */}
-          <div className="space-y-4">
+      {/* Success Alert */}
+      {success && (
+        <Card className="border-emerald-200 bg-emerald-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+              <div>
+                <p className="font-semibold text-emerald-900">Stock received successfully!</p>
+                <p className="text-sm text-emerald-700">Document has been created in draft status</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Header Info Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Document Details</CardTitle>
+            <CardDescription>Basic information for the receiving document</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Document Number (optional)
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
+                Document Number <span className="text-gray-400">(optional)</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={docNumber}
                 onChange={(e) => setDocNumber(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg"
                 placeholder="Auto-generated if empty"
+                className="h-12"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Warehouse ID *
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
+                Warehouse ID <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={warehouse}
                 onChange={(e) => setWarehouse(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg"
                 placeholder="Enter warehouse UUID"
+                className="h-12 font-mono text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Storage Location ID *
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
+                Storage Location ID <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg"
                 placeholder="Enter location UUID"
+                className="h-12 font-mono text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
                 Notes
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 placeholder="Optional notes..."
               />
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Line Items */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Items</h3>
-              <button
-                type="button"
-                onClick={addLine}
-                className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium"
-              >
-                <Plus className="w-5 h-5" />
-                Add Item
-              </button>
+        {/* Line Items Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Items</CardTitle>
+                <CardDescription>Products to receive</CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {lines.length} {lines.length === 1 ? 'item' : 'items'}
+              </Badge>
             </div>
-
-            <div className="space-y-4">
-              {lines.map((line, index) => (
-                <div key={line.id} className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-gray-700">Item #{index + 1}</span>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {lines.map((line, index) => (
+              <div key={line.id}>
+                {index > 0 && <Separator className="my-4" />}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-sm font-semibold text-emerald-700">
+                        {index + 1}
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Item #{index + 1}</span>
+                    </div>
                     {lines.length > 1 && (
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeLine(line.id)}
-                        className="text-red-600 hover:text-red-800 p-1"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product ID *
+                    <label className="text-sm font-medium text-gray-900 mb-2 block">
+                      Product ID <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={line.productId}
                       onChange={(e) => updateLine(line.id, 'productId', e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder="Enter product UUID"
+                      className="font-mono text-sm"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Quantity *
+                      <label className="text-sm font-medium text-gray-900 mb-2 block">
+                        Quantity <span className="text-red-500">*</span>
                       </label>
-                      <input
+                      <Input
                         type="number"
                         step="0.01"
                         value={line.quantity}
                         onChange={(e) => updateLine(line.id, 'quantity', e.target.value)}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         placeholder="0.00"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        UOM ID *
+                      <label className="text-sm font-medium text-gray-900 mb-2 block">
+                        UOM ID <span className="text-red-500">*</span>
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value={line.uomId}
                         onChange={(e) => updateLine(line.id, 'uomId', e.target.value)}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         placeholder="Enter UOM UUID"
+                        className="font-mono text-sm"
                       />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            ))}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={createDocument.isPending}
-            className="w-full bg-green-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95 transition-transform"
-          >
-            <Save className="w-6 h-6" />
-            {createDocument.isPending ? 'Creating...' : 'Create Receiving Document'}
-          </button>
-        </form>
-      </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addLine}
+              className="w-full border-dashed border-2 h-12 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Item
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          disabled={createDocument.isPending}
+          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg"
+        >
+          <Package className="h-5 w-5 mr-2" />
+          {createDocument.isPending ? 'Creating...' : 'Create Receiving Document'}
+        </Button>
+      </form>
     </div>
   );
 }

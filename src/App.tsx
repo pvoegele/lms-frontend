@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import ReceiveStock from './pages/ReceiveStock';
 import ShipStock from './pages/ShipStock';
 import StockLookup from './pages/StockLookup';
+import { Toaster } from '@/components/ui/sonner';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -29,6 +30,7 @@ function App() {
             <Route path="/lookup" element={<StockLookup />} />
           </Routes>
         </Layout>
+        <Toaster />
       </BrowserRouter>
     </QueryClientProvider>
   );

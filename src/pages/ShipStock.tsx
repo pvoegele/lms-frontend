@@ -1,8 +1,13 @@
 import { useState } from 'react';
-import { Plus, Trash2, TruckIcon, CheckCircle } from 'lucide-react';
+import { Plus, Trash2, TruckIcon, CheckCircle2 } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../config/api';
 import type { CreateStockDocumentPayload } from '../types/warehouse';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 export default function ShipStock() {
   const [docNumber, setDocNumber] = useState('');
@@ -40,7 +45,7 @@ export default function ShipStock() {
       setLocation('');
       setNotes('');
       setLines([{ id: Date.now(), productId: '', quantity: '', uomId: '' }]);
-      setTimeout(() => setSuccess(false), 3000);
+      setTimeout(() => setSuccess(false), 4000);
     },
   });
 
@@ -82,171 +87,207 @@ export default function ShipStock() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <TruckIcon className="w-7 h-7 text-blue-600" />
-          Ship Stock
-        </h2>
-
-        {success && (
-          <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
-            <CheckCircle className="w-6 h-6 text-blue-600" />
-            <div>
-              <p className="font-semibold text-blue-800">Shipment created successfully!</p>
-              <p className="text-sm text-blue-700">Document has been created in draft status</p>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+            <TruckIcon className="h-6 w-6 text-white" />
           </div>
-        )}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Ship Stock</h2>
+            <p className="text-sm text-gray-500">Process outbound shipments and update stock levels</p>
+          </div>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Header Info */}
-          <div className="space-y-4">
+      {/* Success Alert */}
+      {success && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-6 w-6 text-blue-600" />
+              <div>
+                <p className="font-semibold text-blue-900">Shipment created successfully!</p>
+                <p className="text-sm text-blue-700">Document has been created in draft status</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Header Info Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Document Details</CardTitle>
+            <CardDescription>Basic information for the shipping document</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Document Number (optional)
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
+                Document Number <span className="text-gray-400">(optional)</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={docNumber}
                 onChange={(e) => setDocNumber(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
                 placeholder="Auto-generated if empty"
+                className="h-12"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Warehouse ID *
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
+                Warehouse ID <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={warehouse}
                 onChange={(e) => setWarehouse(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
                 placeholder="Enter warehouse UUID"
+                className="h-12 font-mono text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Storage Location ID *
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
+                Storage Location ID <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
                 placeholder="Enter location UUID"
+                className="h-12 font-mono text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="text-sm font-medium text-gray-900 mb-2 block">
                 Notes
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Optional notes..."
               />
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Line Items */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Items to Ship</h3>
-              <button
-                type="button"
-                onClick={addLine}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-medium"
-              >
-                <Plus className="w-5 h-5" />
-                Add Item
-              </button>
+        {/* Line Items Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Items to Ship</CardTitle>
+                <CardDescription>Products to ship from inventory</CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {lines.length} {lines.length === 1 ? 'item' : 'items'}
+              </Badge>
             </div>
-
-            <div className="space-y-4">
-              {lines.map((line, index) => (
-                <div key={line.id} className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-gray-700">Item #{index + 1}</span>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {lines.map((line, index) => (
+              <div key={line.id}>
+                {index > 0 && <Separator className="my-4" />}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-sm font-semibold text-blue-700">
+                        {index + 1}
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">Item #{index + 1}</span>
+                    </div>
                     {lines.length > 1 && (
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeLine(line.id)}
-                        className="text-red-600 hover:text-red-800 p-1"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Product ID *
+                    <label className="text-sm font-medium text-gray-900 mb-2 block">
+                      Product ID <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value={line.productId}
                       onChange={(e) => updateLine(line.id, 'productId', e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter product UUID"
+                      className="font-mono text-sm"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Quantity *
+                      <label className="text-sm font-medium text-gray-900 mb-2 block">
+                        Quantity <span className="text-red-500">*</span>
                       </label>
-                      <input
+                      <Input
                         type="number"
                         step="0.01"
                         value={line.quantity}
                         onChange={(e) => updateLine(line.id, 'quantity', e.target.value)}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="0.00"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        UOM ID *
+                      <label className="text-sm font-medium text-gray-900 mb-2 block">
+                        UOM ID <span className="text-red-500">*</span>
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value={line.uomId}
                         onChange={(e) => updateLine(line.id, 'uomId', e.target.value)}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Enter UOM UUID"
+                        className="font-mono text-sm"
                       />
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            ))}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={createDocument.isPending}
-            className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-95 transition-transform"
-          >
-            <TruckIcon className="w-6 h-6" />
-            {createDocument.isPending ? 'Creating...' : 'Create Shipping Document'}
-          </button>
-        </form>
-      </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addLine}
+              className="w-full border-dashed border-2 h-12 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Item
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          disabled={createDocument.isPending}
+          className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+        >
+          <TruckIcon className="h-5 w-5 mr-2" />
+          {createDocument.isPending ? 'Creating...' : 'Create Shipping Document'}
+        </Button>
+      </form>
     </div>
   );
 }

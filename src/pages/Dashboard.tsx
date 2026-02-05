@@ -1,64 +1,102 @@
-import { Package, TruckIcon, FileText, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Package, TruckIcon, Search, ArrowRight, Warehouse, BarChart3 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-export default function Dashboard() {
-  const quickActions = [
+export default function Home() {
+  const actions = [
     {
-      to: '/receive',
+      title: 'Receive Stock',
+      description: 'Create receiving documents and log incoming inventory',
       icon: Package,
-      label: 'Receive Stock',
-      description: 'Record incoming inventory',
-      color: 'bg-green-500',
+      path: '/receive',
+      color: 'from-emerald-500 to-teal-600',
+      bgColor: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
     },
     {
-      to: '/ship',
+      title: 'Ship Stock',
+      description: 'Process outbound shipments and update stock levels',
       icon: TruckIcon,
-      label: 'Ship Stock',
-      description: 'Process outgoing orders',
-      color: 'bg-blue-500',
+      path: '/ship',
+      color: 'from-blue-500 to-indigo-600',
+      bgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600',
     },
     {
-      to: '/lookup',
-      icon: FileText,
-      label: 'Stock Lookup',
-      description: 'Check inventory levels',
-      color: 'bg-purple-500',
+      title: 'Stock Lookup',
+      description: 'Search products and view real-time inventory status',
+      icon: Search,
+      path: '/lookup',
+      color: 'from-purple-500 to-pink-600',
+      bgColor: 'bg-purple-50',
+      iconColor: 'text-purple-600',
     },
   ];
 
-  const recentActivity = [
-    { id: 1, type: 'Received', doc: 'RCV-001', time: '2 hours ago', status: 'completed' },
-    { id: 2, type: 'Shipped', doc: 'SHP-045', time: '4 hours ago', status: 'completed' },
-    { id: 3, type: 'Received', doc: 'RCV-002', time: '6 hours ago', status: 'completed' },
+  const stats = [
+    { label: 'Active Warehouses', value: '12', change: '+2 this month' },
+    { label: 'Products Tracked', value: '3,847', change: '+156 this week' },
+    { label: 'Transactions Today', value: '234', change: '+18% vs yesterday' },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
-        <p className="text-gray-600">Ready to manage warehouse operations</p>
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8 text-white shadow-2xl">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDEzNGg0djJoLTR6bTAgNGg0djJoLTR6bS0yLTJoNHYyaC00em0wLTRoNHYyaC00eiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMTI4KSIvPjwvZz48L2c+PC9zdmc+')] opacity-10"></div>
+        
+        <div className="relative">
+          <div className="mb-2 flex items-center gap-2">
+            <Warehouse className="h-8 w-8" />
+            <Badge variant="secondary" className="bg-white/20 text-white">v2.0</Badge>
+          </div>
+          <h1 className="text-3xl font-bold mb-2">Warehouse Nexus</h1>
+          <p className="text-blue-100 text-lg mb-6">
+            Enterprise inventory management at your fingertips
+          </p>
+          
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="rounded-lg bg-white/10 backdrop-blur-sm p-3">
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-xs text-blue-100">{stat.label}</div>
+                <div className="text-xs text-green-300 mt-1">{stat.change}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Quick Actions */}
+      {/* Main Actions */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 gap-4">
-          {quickActions.map((action) => {
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
+          <BarChart3 className="h-5 w-5 text-gray-400" />
+        </div>
+        
+        <div className="grid gap-4">
+          {actions.map((action) => {
             const Icon = action.icon;
             return (
-              <Link
-                key={action.to}
-                to={action.to}
-                className="bg-white rounded-lg shadow p-6 flex items-center gap-4 hover:shadow-lg transition-shadow active:scale-95 transition-transform"
-              >
-                <div className={`${action.color} text-white p-4 rounded-lg`}>
-                  <Icon className="w-8 h-8" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-800 text-lg">{action.label}</h4>
-                  <p className="text-gray-600 text-sm">{action.description}</p>
-                </div>
+              <Link key={action.path} to={action.path}>
+                <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 shadow-md">
+                  <CardHeader className="flex flex-row items-center gap-4 pb-3">
+                    <div className={`${action.bgColor} rounded-xl p-3 transition-transform group-hover:scale-110`}>
+                      <Icon className={`h-7 w-7 ${action.iconColor}`} />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="flex items-center justify-between text-lg">
+                        {action.title}
+                        <ArrowRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-gray-600" />
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        {action.description}
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+                </Card>
               </Link>
             );
           })}
@@ -66,40 +104,36 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Activity */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          {recentActivity.map((activity) => (
-            <div
-              key={activity.id}
-              className="border-b border-gray-100 last:border-0 p-4 flex items-center gap-4"
-            >
-              <CheckCircle className="w-6 h-6 text-green-500" />
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">
-                  {activity.type} - {activity.doc}
-                </p>
-                <p className="text-sm text-gray-500">{activity.time}</p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Recent Activity</CardTitle>
+          <CardDescription>Your latest warehouse operations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3 text-sm">
+            {[
+              { action: 'Received', item: '150 units of SKU-4782', time: '2 hours ago', type: 'receive' },
+              { action: 'Shipped', item: '75 units to Location A', time: '4 hours ago', type: 'ship' },
+              { action: 'Stock checked', item: 'Product catalog updated', time: '6 hours ago', type: 'lookup' },
+            ].map((activity, i) => (
+              <div key={i} className="flex items-center justify-between rounded-lg border border-gray-100 p-3 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className={`h-2 w-2 rounded-full ${
+                    activity.type === 'receive' ? 'bg-emerald-500' :
+                    activity.type === 'ship' ? 'bg-blue-500' :
+                    'bg-purple-500'
+                  }`}></div>
+                  <div>
+                    <div className="font-medium text-gray-900">{activity.action}</div>
+                    <div className="text-gray-500">{activity.item}</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-400">{activity.time}</div>
               </div>
-              <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
-                {activity.status}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Stats Card */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-gray-600 text-sm mb-1">Today's Receipts</p>
-          <p className="text-3xl font-bold text-gray-800">12</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-gray-600 text-sm mb-1">Today's Shipments</p>
-          <p className="text-3xl font-bold text-gray-800">8</p>
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
