@@ -18,7 +18,8 @@ export default function ShipStock() {
   const [success, setSuccess] = useState(false);
 
   // Fetch products (future use)
-  const { data: _products = [] } = useQuery({
+  // @ts-expect-error - will be used in future dropdown implementation
+  const { data: products = [] } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await api.get('/products/');

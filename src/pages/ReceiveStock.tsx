@@ -18,7 +18,8 @@ export default function ReceiveStock() {
   const [success, setSuccess] = useState(false);
 
   // Fetch products for dropdown (future use)
-  const { data: _products = [] } = useQuery({
+  // @ts-expect-error - will be used in future dropdown implementation
+  const { data: products = [] } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await api.get('/products/');
@@ -27,7 +28,8 @@ export default function ReceiveStock() {
   });
 
   // Fetch UOMs (future use)
-  const { data: _uoms = [] } = useQuery({
+  // @ts-expect-error - will be used in future dropdown implementation
+  const { data: uoms = [] } = useQuery({
     queryKey: ['uoms'],
     queryFn: async () => {
       const response = await api.get('/products/uom');
