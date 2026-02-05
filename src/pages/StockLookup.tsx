@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, Package } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../config/api';
-import { Product } from '../types/warehouse';
+import type { Product } from '../types/warehouse';
 
 export default function StockLookup() {
   const [searchTerm, setSearchTerm] = useState('');

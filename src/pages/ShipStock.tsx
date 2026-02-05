@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Trash2, TruckIcon, CheckCircle } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../config/api';
-import { CreateStockDocumentPayload } from '../types/warehouse';
+import type { CreateStockDocumentPayload } from '../types/warehouse';
 
 export default function ShipStock() {
   const [docNumber, setDocNumber] = useState('');
@@ -17,8 +17,8 @@ export default function ShipStock() {
   }>>([{ id: 1, productId: '', quantity: '', uomId: '' }]);
   const [success, setSuccess] = useState(false);
 
-  // Fetch products
-  const { data: products = [] } = useQuery({
+  // Fetch products (future use)
+  const { data: _products = [] } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await api.get('/products/');
