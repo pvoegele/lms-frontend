@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Package, TruckIcon, Search, ArrowRight, Warehouse, BarChart3 } from 'lucide-react';
+import { Package, TruckIcon, Search, ArrowRight, Warehouse, BarChart3, Box, FileText, Scale, MapPin } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -31,6 +31,49 @@ export default function Home() {
       color: 'from-purple-500 to-pink-600',
       bgColor: 'bg-purple-50',
       iconColor: 'text-purple-600',
+    },
+  ];
+
+  const masterData = [
+    {
+      title: 'Products',
+      description: 'Manage product catalog',
+      icon: Box,
+      path: '/products',
+      bgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+    },
+    {
+      title: 'Stock Documents',
+      description: 'View transaction history',
+      icon: FileText,
+      path: '/documents',
+      bgColor: 'bg-purple-50',
+      iconColor: 'text-purple-600',
+    },
+    {
+      title: 'Warehouses',
+      description: 'Manage warehouse locations',
+      icon: Warehouse,
+      path: '/warehouses',
+      bgColor: 'bg-cyan-50',
+      iconColor: 'text-cyan-600',
+    },
+    {
+      title: 'Storage Locations',
+      description: 'Configure storage bins',
+      icon: MapPin,
+      path: '/locations',
+      bgColor: 'bg-green-50',
+      iconColor: 'text-green-600',
+    },
+    {
+      title: 'Units of Measure',
+      description: 'View measurement units',
+      icon: Scale,
+      path: '/uoms',
+      bgColor: 'bg-amber-50',
+      iconColor: 'text-amber-600',
     },
   ];
 
@@ -96,6 +139,33 @@ export default function Home() {
                       </CardDescription>
                     </div>
                   </CardHeader>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Master Data Management */}
+      <div>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">Master Data</h2>
+          <Badge variant="outline">Reference Data</Badge>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          {masterData.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.path} to={item.path}>
+                <Card className="group transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border-0 shadow-sm">
+                  <CardContent className="p-4">
+                    <div className={`${item.bgColor} rounded-lg p-2 inline-block mb-2 transition-transform group-hover:scale-110`}>
+                      <Icon className={`h-5 w-5 ${item.iconColor}`} />
+                    </div>
+                    <div className="font-semibold text-sm text-gray-900 mb-1">{item.title}</div>
+                    <div className="text-xs text-gray-500">{item.description}</div>
+                  </CardContent>
                 </Card>
               </Link>
             );
