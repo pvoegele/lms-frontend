@@ -12,6 +12,15 @@ import { toast } from 'sonner';
 import { api } from '@/config/api';
 import type { UnitOfMeasure } from '@/types/warehouse';
 
+interface ApiError {
+  response?: {
+    data?: {
+      detail?: string;
+      errors?: Record<string, string>;
+    };
+  };
+}
+
 export default function UOMAdmin() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,7 +63,7 @@ export default function UOMAdmin() {
       toast.success('Unit of measure created successfully');
       handleCloseForm();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to create unit of measure';
       toast.error(errorMessage);
       if (error.response?.data?.errors) {
@@ -79,7 +88,7 @@ export default function UOMAdmin() {
       toast.success('Unit of measure updated successfully');
       handleCloseForm();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to update unit of measure';
       toast.error(errorMessage);
       if (error.response?.data?.errors) {
@@ -99,7 +108,7 @@ export default function UOMAdmin() {
       setIsDeleteOpen(false);
       setDeletingUOM(null);
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to delete unit of measure';
       toast.error(errorMessage);
     },

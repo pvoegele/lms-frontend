@@ -12,6 +12,15 @@ import { toast } from 'sonner';
 import { api } from '@/config/api';
 import type { StorageLocation, Warehouse } from '@/types/warehouse';
 
+interface ApiError {
+  response?: {
+    data?: {
+      detail?: string;
+      errors?: Record<string, string>;
+    };
+  };
+}
+
 export default function StorageLocationAdmin() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,7 +68,7 @@ export default function StorageLocationAdmin() {
       toast.success('Storage location created successfully');
       handleCloseForm();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to create storage location';
       toast.error(errorMessage);
       if (error.response?.data?.errors) {
@@ -79,7 +88,7 @@ export default function StorageLocationAdmin() {
       toast.success('Storage location updated successfully');
       handleCloseForm();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to update storage location';
       toast.error(errorMessage);
       if (error.response?.data?.errors) {
@@ -99,7 +108,7 @@ export default function StorageLocationAdmin() {
       setIsDeleteOpen(false);
       setDeletingLocation(null);
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to delete storage location';
       toast.error(errorMessage);
     },

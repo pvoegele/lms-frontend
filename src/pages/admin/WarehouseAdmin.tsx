@@ -11,6 +11,15 @@ import { toast } from 'sonner';
 import { api } from '@/config/api';
 import type { Warehouse } from '@/types/warehouse';
 
+interface ApiError {
+  response?: {
+    data?: {
+      detail?: string;
+      errors?: Record<string, string>;
+    };
+  };
+}
+
 export default function WarehouseAdmin() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,7 +56,7 @@ export default function WarehouseAdmin() {
       toast.success('Warehouse created successfully');
       handleCloseForm();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to create warehouse';
       toast.error(errorMessage);
       if (error.response?.data?.errors) {
@@ -67,7 +76,7 @@ export default function WarehouseAdmin() {
       toast.success('Warehouse updated successfully');
       handleCloseForm();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to update warehouse';
       toast.error(errorMessage);
       if (error.response?.data?.errors) {
@@ -87,7 +96,7 @@ export default function WarehouseAdmin() {
       setIsDeleteOpen(false);
       setDeletingWarehouse(null);
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       const errorMessage = error.response?.data?.detail || 'Failed to delete warehouse';
       toast.error(errorMessage);
     },
