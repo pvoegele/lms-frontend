@@ -118,12 +118,20 @@ export default function UOMAdmin() {
     
     if (!formData.code.trim()) {
       newErrors.code = 'UOM code is required';
+    } else if (formData.code.length > 20) {
+      newErrors.code = 'UOM code must not exceed 20 characters';
     }
     
     if (!formData.name.trim()) {
       newErrors.name = 'UOM name is required';
-    } else if (formData.name.length < 2) {
-      newErrors.name = 'UOM name must be at least 2 characters';
+    } else if (formData.name.length > 100) {
+      newErrors.name = 'UOM name must not exceed 100 characters';
+    }
+    
+    if (!formData.category.trim()) {
+      newErrors.category = 'Category is required';
+    } else if (formData.category.length > 50) {
+      newErrors.category = 'Category must not exceed 50 characters';
     }
     
     const conversionFactor = parseFloat(formData.conversion_factor);
@@ -154,7 +162,8 @@ export default function UOMAdmin() {
     setFormData({
       code: uom.code,
       name: uom.name,
-      base_unit_id: uom.base_unit_id || '',
+      category: uom.category,
+      is_base_unit: uom.is_base_unit,
       conversion_factor: uom.conversion_factor.toString(),
     });
     setErrors({});
@@ -169,7 +178,7 @@ export default function UOMAdmin() {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingUOM(null);
-    setFormData({ code: '', name: '', base_unit_id: '', conversion_factor: '1' });
+    setFormData({ code: '', name: '', category: '', is_base_unit: false, conversion_factor: '1' });
     setErrors({});
   };
 
@@ -245,18 +254,12 @@ export default function UOMAdmin() {
                 <div className="flex-1">
                   <CardTitle className="text-lg flex items-center gap-2">
                     {uom.name} ({uom.code})
-                    {!uom.base_unit_id && (
+                    {uom.is_base_unit && (
                       <Badge variant="default" className="bg-blue-100 text-blue-800">Base Unit</Badge>
                     )}
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    {uom.base_unit_id ? (
-                      <>
-                        Conversion: {uom.conversion_factor} × {getBaseUomName(uom.base_unit_id)}
-                      </>
-                    ) : (
-                      <>Base unit of measure</>
-                    )}
+                    Category: {uom.category} | Conversion Factor: {uom.conversion_factor}
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
@@ -312,6 +315,7 @@ export default function UOMAdmin() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Each, Box, Kilogram"
+                  maxLength={100}
                 />
                 {errors.name && (
                   <p className="text-sm text-red-600">{errors.name}</p>
@@ -319,28 +323,35 @@ export default function UOMAdmin() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="base_unit_id">Base UOM (Optional)</Label>
-                <Select
-                  value={formData.base_unit_id}
-                  onValueChange={(value) => setFormData({ ...formData, base_unit_id: value })}
-                >
-                  <SelectTrigger id="base_unit_id">
-                    <SelectValue placeholder="Select base UOM (leave empty for base unit)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None (This is a base unit)</SelectItem>
-                    {uoms
-                      .filter(u => u.unit_id !== editingUOM?.unit_id)
-                      .map((uom) => (
-                        <SelectItem key={uom.unit_id} value={uom.unit_id}>
-                          {uom.name} ({uom.code})
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="category">
+                  Category <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  placeholder="e.g., weight, volume, length, each"
+                  maxLength={50}
+                />
+                {errors.category && (
+                  <p className="text-sm text-red-600">{errors.category}</p>
+                )}
                 <p className="text-xs text-gray-500">
-                  If this UOM is derived from another (e.g., Box = 12 × Each), select the base UOM
+                  Categorize the unit (e.g., "weight", "volume", "length", "each")
                 </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_base_unit"
+                  checked={formData.is_base_unit}
+                  onChange={(e) => setFormData({ ...formData, is_base_unit: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                />
+                <Label htmlFor="is_base_unit" className="cursor-pointer">
+                  Base Unit (check if this is the primary unit for its category)
+                </Label>
               </div>
 
               <div className="space-y-2">
@@ -360,7 +371,7 @@ export default function UOMAdmin() {
                   <p className="text-sm text-red-600">{errors.conversion_factor}</p>
                 )}
                 <p className="text-xs text-gray-500">
-                  How many base units equals one of this unit? (e.g., if 1 Box = 12 Each, enter 12)
+                  Numeric factor for unit conversion (e.g., 1 for base units, 1000 for kg to g)
                 </p>
               </div>
             </div>
