@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Package, TruckIcon, Search, Home, Warehouse } from 'lucide-react';
+import { Package, TruckIcon, Search, Home, Warehouse, Settings } from 'lucide-react';
 import OfflineAlert from './OfflineAlert';
 
 interface LayoutProps {
@@ -15,6 +15,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/receive', icon: Package, label: 'Receive' },
     { path: '/ship', icon: TruckIcon, label: 'Ship' },
     { path: '/lookup', icon: Search, label: 'Lookup' },
+    { path: '/admin', icon: Settings, label: 'Admin' },
   ];
 
   return (
@@ -44,9 +45,9 @@ export default function Layout({ children }: LayoutProps) {
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 shadow-2xl">
         <div className="container mx-auto max-w-4xl">
-          <div className="grid grid-cols-4">
+          <div className="grid grid-cols-5">
             {navItems.map(({ path, icon: Icon, label }) => {
-              const isActive = location.pathname === path;
+              const isActive = location.pathname === path || (path === '/admin' && location.pathname.startsWith('/admin'));
               return (
                 <Link
                   key={path}
