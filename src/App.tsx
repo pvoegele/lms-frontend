@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import ReceiveStock from './pages/ReceiveStock';
 import ShipStock from './pages/ShipStock';
 import StockLookup from './pages/StockLookup';
+import Products from './pages/Products';
 import { Toaster } from '@/components/ui/sonner';
 
 // Create a client
@@ -25,6 +26,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/products" element={<Products />} />
             <Route path="/receive" element={<ReceiveStock />} />
             <Route path="/ship" element={<ShipStock />} />
             <Route path="/lookup" element={<StockLookup />} />
