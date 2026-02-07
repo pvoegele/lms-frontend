@@ -31,10 +31,11 @@ export default function StorageLocationAdmin() {
   const [deletingLocation, setDeletingLocation] = useState<StorageLocation | null>(null);
   
   const [formData, setFormData] = useState({
-    location_code: '',
-    location_name: '',
+    code: '',
+    name: '',
     warehouse_id: '',
-    is_active: true,
+    location_type: 'standard_rack' as 'standard_rack' | 'high_shelf' | 'floor_space' | 'cold_storage' | 'quarantine_zone' | 'receiving_dock' | 'shipping_dock',
+    is_available: true,
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});

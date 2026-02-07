@@ -29,8 +29,11 @@ export default function WarehouseAdmin() {
   const [deletingWarehouse, setDeletingWarehouse] = useState<Warehouse | null>(null);
   
   const [formData, setFormData] = useState({
-    warehouse_code: '',
-    warehouse_name: '',
+    code: '',
+    name: '',
+    address: '',
+    manager: '',
+    capacity_notes: '',
     is_active: true,
   });
   
@@ -105,16 +108,20 @@ export default function WarehouseAdmin() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.warehouse_code.trim()) {
-      newErrors.warehouse_code = 'Warehouse code is required';
-    } else if (formData.warehouse_code.length < 2) {
-      newErrors.warehouse_code = 'Warehouse code must be at least 2 characters';
+    if (!formData.code.trim()) {
+      newErrors.code = 'Warehouse code is required';
+    } else if (formData.code.length > 50) {
+      newErrors.code = 'Warehouse code must not exceed 50 characters';
     }
     
-    if (!formData.warehouse_name.trim()) {
-      newErrors.warehouse_name = 'Warehouse name is required';
-    } else if (formData.warehouse_name.length < 3) {
-      newErrors.warehouse_name = 'Warehouse name must be at least 3 characters';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Warehouse name is required';
+    } else if (formData.name.length > 150) {
+      newErrors.name = 'Warehouse name must not exceed 150 characters';
+    }
+    
+    if (formData.manager && formData.manager.length > 150) {
+      newErrors.manager = 'Manager name must not exceed 150 characters';
     }
     
     setErrors(newErrors);
@@ -138,8 +145,11 @@ export default function WarehouseAdmin() {
   const handleEdit = (warehouse: Warehouse) => {
     setEditingWarehouse(warehouse);
     setFormData({
-      warehouse_code: warehouse.warehouse_code,
-      warehouse_name: warehouse.warehouse_name,
+      code: warehouse.code,
+      name: warehouse.name,
+      address: warehouse.address || '',
+      manager: warehouse.manager || '',
+      capacity_notes: warehouse.capacity_notes || '',
       is_active: warehouse.is_active,
     });
     setErrors({});
@@ -154,13 +164,13 @@ export default function WarehouseAdmin() {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingWarehouse(null);
-    setFormData({ warehouse_code: '', warehouse_name: '', is_active: true });
+    setFormData({ code: '', name: '', address: '', manager: '', capacity_notes: '', is_active: true });
     setErrors({});
   };
 
   const filteredWarehouses = warehouses.filter(wh =>
-    wh.warehouse_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    wh.warehouse_code.toLowerCase().includes(searchTerm.toLowerCase())
+    wh.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    wh.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -223,7 +233,7 @@ export default function WarehouseAdmin() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <div className="flex-1">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {warehouse.warehouse_name}
+                    {warehouse.name}
                     {warehouse.is_active ? (
                       <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
                     ) : (
@@ -231,7 +241,9 @@ export default function WarehouseAdmin() {
                     )}
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    Code: {warehouse.warehouse_code}
+                    Code: {warehouse.code}
+                    {warehouse.manager && ` | Manager: ${warehouse.manager}`}
+                    {warehouse.address && ` | ${warehouse.address}`}
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
@@ -263,34 +275,70 @@ export default function WarehouseAdmin() {
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="warehouse_code">
+                <Label htmlFor="code">
                   Warehouse Code <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="warehouse_code"
-                  value={formData.warehouse_code}
-                  onChange={(e) => setFormData({ ...formData, warehouse_code: e.target.value })}
+                  id="code"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                   placeholder="e.g., WH001"
                   disabled={!!editingWarehouse}
+                  maxLength={50}
                 />
-                {errors.warehouse_code && (
-                  <p className="text-sm text-red-600">{errors.warehouse_code}</p>
+                {errors.code && (
+                  <p className="text-sm text-red-600">{errors.code}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="warehouse_name">
+                <Label htmlFor="name">
                   Warehouse Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="warehouse_name"
-                  value={formData.warehouse_name}
-                  onChange={(e) => setFormData({ ...formData, warehouse_name: e.target.value })}
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Main Warehouse"
+                  maxLength={150}
                 />
-                {errors.warehouse_name && (
-                  <p className="text-sm text-red-600">{errors.warehouse_name}</p>
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name}</p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Optional warehouse address"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="manager">Manager</Label>
+                <Input
+                  id="manager"
+                  value={formData.manager}
+                  onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+                  placeholder="Optional warehouse manager name"
+                  maxLength={150}
+                />
+                {errors.manager && (
+                  <p className="text-sm text-red-600">{errors.manager}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="capacity_notes">Capacity Notes</Label>
+                <Input
+                  id="capacity_notes"
+                  value={formData.capacity_notes}
+                  onChange={(e) => setFormData({ ...formData, capacity_notes: e.target.value })}
+                  placeholder="Optional capacity information"
+                />
               </div>
 
               <div className="flex items-center gap-2">
@@ -331,7 +379,7 @@ export default function WarehouseAdmin() {
           <DialogHeader>
             <DialogTitle>Delete Warehouse</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <strong>{deletingWarehouse?.warehouse_name}</strong>?
+              Are you sure you want to delete <strong>{deletingWarehouse?.name}</strong>?
               This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
