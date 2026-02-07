@@ -119,8 +119,6 @@ export default function UOMAdmin() {
     
     if (!formData.uom_code.trim()) {
       newErrors.uom_code = 'UOM code is required';
-    } else if (formData.uom_code.length < 1) {
-      newErrors.uom_code = 'UOM code must be at least 1 character';
     }
     
     if (!formData.uom_name.trim()) {
