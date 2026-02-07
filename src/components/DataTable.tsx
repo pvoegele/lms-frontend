@@ -75,12 +75,13 @@ export function DataTable<T>({
     const column = columns.find(col => col.key === sortColumn);
     if (!column) return 0;
 
-    const aValue = column.cell(a);
-    const bValue = column.cell(b);
+    // Get the actual value from the object using the column key
+    const aValue = (a as Record<string, unknown>)[column.key];
+    const bValue = (b as Record<string, unknown>)[column.key];
     
-    // Convert to string for comparison to handle React nodes
-    const aStr = String(aValue);
-    const bStr = String(bValue);
+    // Convert to string for comparison
+    const aStr = String(aValue ?? '');
+    const bStr = String(bValue ?? '');
     
     if (aStr < bStr) return sortDirection === 'asc' ? -1 : 1;
     if (aStr > bStr) return sortDirection === 'asc' ? 1 : -1;
