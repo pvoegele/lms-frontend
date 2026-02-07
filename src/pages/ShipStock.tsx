@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Trash2, TruckIcon } from 'lucide-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { api } from '../config/api';
 import type { CreateStockDocumentPayload } from '../types/warehouse';
 import { Button } from '@/components/ui/button';
@@ -21,16 +21,6 @@ export default function ShipStock() {
     quantity: string;
     uomId: string;
   }>>([{ id: 1, productId: '', quantity: '', uomId: '' }]);
-
-  // Fetch products (future use)
-  // @ts-expect-error - will be used in future dropdown implementation
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: async () => {
-      const response = await api.get('/products/');
-      return response.data;
-    },
-  });
 
   // Create stock document mutation
   const createDocument = useMutation({
