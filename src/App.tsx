@@ -5,6 +5,11 @@ import Dashboard from './pages/Dashboard';
 import ReceiveStock from './pages/ReceiveStock';
 import ShipStock from './pages/ShipStock';
 import StockLookup from './pages/StockLookup';
+import Products from './pages/Products';
+import StockDocuments from './pages/StockDocuments';
+import Warehouses from './pages/Warehouses';
+import StorageLocations from './pages/StorageLocations';
+import UnitsOfMeasure from './pages/UnitsOfMeasure';
 import { Toaster } from '@/components/ui/sonner';
 
 // Create a client
@@ -25,6 +30,11 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/documents" element={<StockDocuments />} />
+            <Route path="/warehouses" element={<Warehouses />} />
+            <Route path="/locations" element={<StorageLocations />} />
+            <Route path="/uoms" element={<UnitsOfMeasure />} />
             <Route path="/receive" element={<ReceiveStock />} />
             <Route path="/ship" element={<ShipStock />} />
             <Route path="/lookup" element={<StockLookup />} />

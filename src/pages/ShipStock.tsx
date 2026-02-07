@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Plus, Trash2, TruckIcon, CheckCircle2 } from 'lucide-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { Plus, Trash2, TruckIcon } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
 import { api } from '../config/api';
 import type { CreateStockDocumentPayload } from '../types/warehouse';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { showToast, handleApiError } from '@/lib/toast';
 
 export default function ShipStock() {
   const [docNumber, setDocNumber] = useState('');
@@ -20,17 +21,6 @@ export default function ShipStock() {
     quantity: string;
     uomId: string;
   }>>([{ id: 1, productId: '', quantity: '', uomId: '' }]);
-  const [success, setSuccess] = useState(false);
-
-  // Fetch products (future use)
-  // @ts-expect-error - will be used in future dropdown implementation
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: async () => {
-      const response = await api.get('/products/');
-      return response.data;
-    },
-  });
 
   // Create stock document mutation
   const createDocument = useMutation({
@@ -38,14 +28,16 @@ export default function ShipStock() {
       const response = await api.post('/stock-documents/', payload);
       return response.data;
     },
-    onSuccess: () => {
-      setSuccess(true);
+    onSuccess: (data) => {
+      showToast.success('Stock shipped successfully!', `Document ${data.doc_number || docNumber} has been created in draft status`);
       setDocNumber('');
       setWarehouse('');
       setLocation('');
       setNotes('');
       setLines([{ id: Date.now(), productId: '', quantity: '', uomId: '' }]);
-      setTimeout(() => setSuccess(false), 4000);
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to create shipping document');
     },
   });
 
@@ -100,21 +92,6 @@ export default function ShipStock() {
           </div>
         </div>
       </div>
-
-      {/* Success Alert */}
-      {success && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-6 w-6 text-blue-600" />
-              <div>
-                <p className="font-semibold text-blue-900">Shipment created successfully!</p>
-                <p className="text-sm text-blue-700">Document has been created in draft status</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">

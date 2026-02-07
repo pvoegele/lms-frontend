@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Plus, Trash2, Package, CheckCircle2 } from 'lucide-react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { Plus, Trash2, Package } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
 import { api } from '../config/api';
 import type { CreateStockDocumentPayload } from '../types/warehouse';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { showToast, handleApiError } from '@/lib/toast';
 
 export default function ReceiveStock() {
   const [docNumber, setDocNumber] = useState('');
@@ -20,27 +21,6 @@ export default function ReceiveStock() {
     quantity: string;
     uomId: string;
   }>>([{ id: 1, productId: '', quantity: '', uomId: '' }]);
-  const [success, setSuccess] = useState(false);
-
-  // Fetch products for dropdown (future use)
-  // @ts-expect-error - will be used in future dropdown implementation
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: async () => {
-      const response = await api.get('/products/');
-      return response.data;
-    },
-  });
-
-  // Fetch UOMs (future use)
-  // @ts-expect-error - will be used in future dropdown implementation
-  const { data: uoms = [] } = useQuery({
-    queryKey: ['uoms'],
-    queryFn: async () => {
-      const response = await api.get('/products/uom');
-      return response.data;
-    },
-  });
 
   // Create stock document mutation
   const createDocument = useMutation({
@@ -48,15 +28,17 @@ export default function ReceiveStock() {
       const response = await api.post('/stock-documents/', payload);
       return response.data;
     },
-    onSuccess: () => {
-      setSuccess(true);
+    onSuccess: (data) => {
+      showToast.success('Stock received successfully!', `Document ${data.doc_number || docNumber} has been created in draft status`);
       // Reset form
       setDocNumber('');
       setWarehouse('');
       setLocation('');
       setNotes('');
       setLines([{ id: Date.now(), productId: '', quantity: '', uomId: '' }]);
-      setTimeout(() => setSuccess(false), 4000);
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to create receiving document');
     },
   });
 
@@ -111,21 +93,6 @@ export default function ReceiveStock() {
           </div>
         </div>
       </div>
-
-      {/* Success Alert */}
-      {success && (
-        <Card className="border-emerald-200 bg-emerald-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-              <div>
-                <p className="font-semibold text-emerald-900">Stock received successfully!</p>
-                <p className="text-sm text-emerald-700">Document has been created in draft status</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
