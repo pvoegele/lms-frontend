@@ -30,9 +30,10 @@ export default function UOMAdmin() {
   const [deletingUOM, setDeletingUOM] = useState<UnitOfMeasure | null>(null);
   
   const [formData, setFormData] = useState({
-    uom_code: '',
-    uom_name: '',
-    base_uom_id: '',
+    code: '',
+    name: '',
+    category: '',
+    is_base_unit: false,
     conversion_factor: '1',
   });
   
@@ -52,7 +53,6 @@ export default function UOMAdmin() {
     mutationFn: async (data: typeof formData) => {
       const payload = {
         ...data,
-        base_uom_id: data.base_uom_id || undefined,
         conversion_factor: parseFloat(data.conversion_factor),
       };
       const response = await api.post('/products/uom', payload);
@@ -77,7 +77,6 @@ export default function UOMAdmin() {
     mutationFn: async (data: { id: string; updates: typeof formData }) => {
       const payload = {
         ...data.updates,
-        base_uom_id: data.updates.base_uom_id || undefined,
         conversion_factor: parseFloat(data.updates.conversion_factor),
       };
       const response = await api.put(`/products/uom/${data.id}`, payload);
@@ -117,14 +116,14 @@ export default function UOMAdmin() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.uom_code.trim()) {
-      newErrors.uom_code = 'UOM code is required';
+    if (!formData.code.trim()) {
+      newErrors.code = 'UOM code is required';
     }
     
-    if (!formData.uom_name.trim()) {
-      newErrors.uom_name = 'UOM name is required';
-    } else if (formData.uom_name.length < 2) {
-      newErrors.uom_name = 'UOM name must be at least 2 characters';
+    if (!formData.name.trim()) {
+      newErrors.name = 'UOM name is required';
+    } else if (formData.name.length < 2) {
+      newErrors.name = 'UOM name must be at least 2 characters';
     }
     
     const conversionFactor = parseFloat(formData.conversion_factor);
@@ -144,7 +143,7 @@ export default function UOMAdmin() {
     }
 
     if (editingUOM) {
-      updateMutation.mutate({ id: editingUOM.uom_id, updates: formData });
+      updateMutation.mutate({ id: editingUOM.unit_id, updates: formData });
     } else {
       createMutation.mutate(formData);
     }
@@ -153,9 +152,9 @@ export default function UOMAdmin() {
   const handleEdit = (uom: UnitOfMeasure) => {
     setEditingUOM(uom);
     setFormData({
-      uom_code: uom.uom_code,
-      uom_name: uom.uom_name,
-      base_uom_id: uom.base_uom_id || '',
+      code: uom.code,
+      name: uom.name,
+      base_unit_id: uom.base_unit_id || '',
       conversion_factor: uom.conversion_factor.toString(),
     });
     setErrors({});
@@ -170,19 +169,19 @@ export default function UOMAdmin() {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingUOM(null);
-    setFormData({ uom_code: '', uom_name: '', base_uom_id: '', conversion_factor: '1' });
+    setFormData({ code: '', name: '', base_unit_id: '', conversion_factor: '1' });
     setErrors({});
   };
 
   const getBaseUomName = (baseUomId: string | undefined) => {
     if (!baseUomId) return 'Base Unit';
-    const uom = uoms.find(u => u.uom_id === baseUomId);
-    return uom?.uom_name || 'Unknown';
+    const uom = uoms.find(u => u.unit_id === baseUomId);
+    return uom?.name || 'Unknown';
   };
 
   const filteredUOMs = uoms.filter(uom =>
-    uom.uom_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    uom.uom_code.toLowerCase().includes(searchTerm.toLowerCase())
+    uom.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    uom.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -241,19 +240,19 @@ export default function UOMAdmin() {
       ) : (
         <div className="grid gap-4">
           {filteredUOMs.map((uom) => (
-            <Card key={uom.uom_id} className="hover:shadow-md transition-shadow">
+            <Card key={uom.unit_id} className="hover:shadow-md transition-shadow">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <div className="flex-1">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {uom.uom_name} ({uom.uom_code})
-                    {!uom.base_uom_id && (
+                    {uom.name} ({uom.code})
+                    {!uom.base_unit_id && (
                       <Badge variant="default" className="bg-blue-100 text-blue-800">Base Unit</Badge>
                     )}
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    {uom.base_uom_id ? (
+                    {uom.base_unit_id ? (
                       <>
-                        Conversion: {uom.conversion_factor} × {getBaseUomName(uom.base_uom_id)}
+                        Conversion: {uom.conversion_factor} × {getBaseUomName(uom.base_unit_id)}
                       </>
                     ) : (
                       <>Base unit of measure</>
@@ -289,52 +288,52 @@ export default function UOMAdmin() {
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="uom_code">
+                <Label htmlFor="code">
                   UOM Code <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="uom_code"
-                  value={formData.uom_code}
-                  onChange={(e) => setFormData({ ...formData, uom_code: e.target.value })}
+                  id="code"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                   placeholder="e.g., EA, BOX, KG"
                   disabled={!!editingUOM}
                 />
-                {errors.uom_code && (
-                  <p className="text-sm text-red-600">{errors.uom_code}</p>
+                {errors.code && (
+                  <p className="text-sm text-red-600">{errors.code}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="uom_name">
+                <Label htmlFor="name">
                   UOM Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="uom_name"
-                  value={formData.uom_name}
-                  onChange={(e) => setFormData({ ...formData, uom_name: e.target.value })}
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Each, Box, Kilogram"
                 />
-                {errors.uom_name && (
-                  <p className="text-sm text-red-600">{errors.uom_name}</p>
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="base_uom_id">Base UOM (Optional)</Label>
+                <Label htmlFor="base_unit_id">Base UOM (Optional)</Label>
                 <Select
-                  value={formData.base_uom_id}
-                  onValueChange={(value) => setFormData({ ...formData, base_uom_id: value })}
+                  value={formData.base_unit_id}
+                  onValueChange={(value) => setFormData({ ...formData, base_unit_id: value })}
                 >
-                  <SelectTrigger id="base_uom_id">
+                  <SelectTrigger id="base_unit_id">
                     <SelectValue placeholder="Select base UOM (leave empty for base unit)" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">None (This is a base unit)</SelectItem>
                     {uoms
-                      .filter(u => u.uom_id !== editingUOM?.uom_id)
+                      .filter(u => u.unit_id !== editingUOM?.unit_id)
                       .map((uom) => (
-                        <SelectItem key={uom.uom_id} value={uom.uom_id}>
-                          {uom.uom_name} ({uom.uom_code})
+                        <SelectItem key={uom.unit_id} value={uom.unit_id}>
+                          {uom.name} ({uom.code})
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -390,7 +389,7 @@ export default function UOMAdmin() {
           <DialogHeader>
             <DialogTitle>Delete Unit of Measure</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <strong>{deletingUOM?.uom_name}</strong>?
+              Are you sure you want to delete <strong>{deletingUOM?.name}</strong>?
               This action cannot be undone and may affect products using this UOM.
             </DialogDescription>
           </DialogHeader>
@@ -400,7 +399,7 @@ export default function UOMAdmin() {
             </Button>
             <Button
               variant="destructive"
-              onClick={() => deletingUOM && deleteMutation.mutate(deletingUOM.uom_id)}
+              onClick={() => deletingUOM && deleteMutation.mutate(deletingUOM.unit_id)}
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending && (

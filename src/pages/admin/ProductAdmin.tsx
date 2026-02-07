@@ -30,14 +30,14 @@ export default function ProductAdmin() {
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   
   const [formData, setFormData] = useState({
-    product_code: '',
-    product_name: '',
+    sku: '',
+    name: '',
     description: '',
     category_id: '',
-    uom_id: '',
+    base_uom_id: '',
     is_active: true,
-    is_serialized: false,
-    is_lot_tracked: false,
+    track_by_serial: false,
+    track_by_lot: false,
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -120,20 +120,20 @@ export default function ProductAdmin() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.product_code.trim()) {
-      newErrors.product_code = 'Product code is required';
-    } else if (formData.product_code.length < 2) {
-      newErrors.product_code = 'Product code must be at least 2 characters';
+    if (!formData.sku.trim()) {
+      newErrors.sku = 'SKU is required';
+    } else if (formData.sku.length > 100) {
+      newErrors.sku = 'SKU must not exceed 100 characters';
     }
     
-    if (!formData.product_name.trim()) {
-      newErrors.product_name = 'Product name is required';
-    } else if (formData.product_name.length < 3) {
-      newErrors.product_name = 'Product name must be at least 3 characters';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Product name is required';
+    } else if (formData.name.length > 250) {
+      newErrors.name = 'Product name must not exceed 250 characters';
     }
     
-    if (!formData.uom_id) {
-      newErrors.uom_id = 'Unit of measure is required';
+    if (!formData.base_uom_id) {
+      newErrors.base_uom_id = 'Unit of measure is required';
     }
     
     setErrors(newErrors);
@@ -157,14 +157,14 @@ export default function ProductAdmin() {
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setFormData({
-      product_code: product.product_code,
-      product_name: product.product_name,
+      sku: product.sku,
+      name: product.name,
       description: product.description || '',
       category_id: product.category_id || '',
-      uom_id: product.uom_id,
+      base_uom_id: product.base_uom_id,
       is_active: product.is_active,
-      is_serialized: product.is_serialized,
-      is_lot_tracked: product.is_lot_tracked,
+      track_by_serial: product.track_by_serial,
+      track_by_lot: product.track_by_lot,
     });
     setErrors({});
     setIsFormOpen(true);
@@ -179,26 +179,26 @@ export default function ProductAdmin() {
     setIsFormOpen(false);
     setEditingProduct(null);
     setFormData({
-      product_code: '',
-      product_name: '',
+      sku: '',
+      name: '',
       description: '',
       category_id: '',
-      uom_id: '',
+      base_uom_id: '',
       is_active: true,
-      is_serialized: false,
-      is_lot_tracked: false,
+      track_by_serial: false,
+      track_by_lot: false,
     });
     setErrors({});
   };
 
   const getUomName = (uomId: string) => {
-    const uom = uoms.find(u => u.uom_id === uomId);
-    return uom?.uom_name || 'Unknown';
+    const uom = uoms.find(u => u.unit_id === uomId);
+    return uom?.name || 'Unknown';
   };
 
   const filteredProducts = products.filter(prod =>
-    prod.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    prod.product_code.toLowerCase().includes(searchTerm.toLowerCase())
+    prod.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    prod.sku.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -261,21 +261,21 @@ export default function ProductAdmin() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <div className="flex-1">
                   <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
-                    {product.product_name}
+                    {product.name}
                     {product.is_active ? (
                       <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
                     ) : (
                       <Badge variant="secondary">Inactive</Badge>
                     )}
-                    {product.is_serialized && (
+                    {product.track_by_serial && (
                       <Badge variant="outline">Serialized</Badge>
                     )}
-                    {product.is_lot_tracked && (
+                    {product.track_by_lot && (
                       <Badge variant="outline">Lot Tracked</Badge>
                     )}
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    Code: {product.product_code} | UOM: {getUomName(product.uom_id)}
+                    SKU: {product.sku} | UOM: {getUomName(product.base_uom_id)}
                     {product.description && ` | ${product.description}`}
                   </CardDescription>
                 </div>
@@ -308,33 +308,35 @@ export default function ProductAdmin() {
 
             <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
               <div className="space-y-2">
-                <Label htmlFor="product_code">
-                  Product Code <span className="text-red-500">*</span>
+                <Label htmlFor="sku">
+                  SKU <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="product_code"
-                  value={formData.product_code}
-                  onChange={(e) => setFormData({ ...formData, product_code: e.target.value })}
+                  id="sku"
+                  value={formData.sku}
+                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                   placeholder="e.g., PROD001"
                   disabled={!!editingProduct}
+                  maxLength={100}
                 />
-                {errors.product_code && (
-                  <p className="text-sm text-red-600">{errors.product_code}</p>
+                {errors.sku && (
+                  <p className="text-sm text-red-600">{errors.sku}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="product_name">
+                <Label htmlFor="name">
                   Product Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="product_name"
-                  value={formData.product_name}
-                  onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Widget A"
+                  maxLength={250}
                 />
-                {errors.product_name && (
-                  <p className="text-sm text-red-600">{errors.product_name}</p>
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name}</p>
                 )}
               </div>
 
@@ -349,26 +351,26 @@ export default function ProductAdmin() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="uom_id">
+                <Label htmlFor="base_uom_id">
                   Unit of Measure <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={formData.uom_id}
-                  onValueChange={(value) => setFormData({ ...formData, uom_id: value })}
+                  value={formData.base_uom_id}
+                  onValueChange={(value) => setFormData({ ...formData, base_uom_id: value })}
                 >
-                  <SelectTrigger id="uom_id">
+                  <SelectTrigger id="base_uom_id">
                     <SelectValue placeholder="Select UOM" />
                   </SelectTrigger>
                   <SelectContent>
                     {uoms.map((uom) => (
-                      <SelectItem key={uom.uom_id} value={uom.uom_id}>
-                        {uom.uom_name} ({uom.uom_code})
+                      <SelectItem key={uom.unit_id} value={uom.unit_id}>
+                        {uom.name} ({uom.code})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.uom_id && (
-                  <p className="text-sm text-red-600">{errors.uom_id}</p>
+                {errors.base_uom_id && (
+                  <p className="text-sm text-red-600">{errors.base_uom_id}</p>
                 )}
               </div>
 
@@ -389,26 +391,26 @@ export default function ProductAdmin() {
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    id="is_serialized"
-                    checked={formData.is_serialized}
-                    onChange={(e) => setFormData({ ...formData, is_serialized: e.target.checked })}
+                    id="track_by_serial"
+                    checked={formData.track_by_serial}
+                    onChange={(e) => setFormData({ ...formData, track_by_serial: e.target.checked })}
                     className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                   />
-                  <Label htmlFor="is_serialized" className="cursor-pointer">
-                    Serialized (Track by serial number)
+                  <Label htmlFor="track_by_serial" className="cursor-pointer">
+                    Track by Serial Number
                   </Label>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    id="is_lot_tracked"
-                    checked={formData.is_lot_tracked}
-                    onChange={(e) => setFormData({ ...formData, is_lot_tracked: e.target.checked })}
+                    id="track_by_lot"
+                    checked={formData.track_by_lot}
+                    onChange={(e) => setFormData({ ...formData, track_by_lot: e.target.checked })}
                     className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                   />
-                  <Label htmlFor="is_lot_tracked" className="cursor-pointer">
-                    Lot Tracked (Track by lot number)
+                  <Label htmlFor="track_by_lot" className="cursor-pointer">
+                    Track by Lot Number
                   </Label>
                 </div>
               </div>
@@ -438,7 +440,7 @@ export default function ProductAdmin() {
           <DialogHeader>
             <DialogTitle>Delete Product</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <strong>{deletingProduct?.product_name}</strong>?
+              Are you sure you want to delete <strong>{deletingProduct?.name}</strong>?
               This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
