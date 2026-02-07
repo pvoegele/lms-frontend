@@ -20,8 +20,8 @@ export default function StockLookup() {
   });
 
   const filteredProducts = products.filter(product =>
-    product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.product_code.toLowerCase().includes(searchTerm.toLowerCase())
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.sku.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const activeProducts = products.filter(p => p.is_active).length;
@@ -139,9 +139,9 @@ export default function StockLookup() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg mb-1">{product.product_name}</CardTitle>
+                    <CardTitle className="text-lg mb-1">{product.name}</CardTitle>
                     <CardDescription className="text-sm">
-                      Code: <span className="font-mono">{product.product_code}</span>
+                      SKU: <span className="font-mono">{product.sku}</span>
                     </CardDescription>
                   </div>
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
@@ -172,12 +172,12 @@ export default function StockLookup() {
                   >
                     {product.is_active ? 'Active' : 'Inactive'}
                   </Badge>
-                  {product.is_serialized && (
+                  {product.track_by_serial && (
                     <Badge variant="secondary" className="bg-blue-100 text-blue-700">
                       Serialized
                     </Badge>
                   )}
-                  {product.is_lot_tracked && (
+                  {product.track_by_lot && (
                     <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">
                       Lot Tracked
                     </Badge>

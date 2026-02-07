@@ -118,16 +118,16 @@ export default function StorageLocationAdmin() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!formData.location_code.trim()) {
-      newErrors.location_code = 'Location code is required';
-    } else if (formData.location_code.length < 2) {
-      newErrors.location_code = 'Location code must be at least 2 characters';
+    if (!formData.code.trim()) {
+      newErrors.code = 'Location code is required';
+    } else if (formData.code.length > 100) {
+      newErrors.code = 'Location code must not exceed 100 characters';
     }
     
-    if (!formData.location_name.trim()) {
-      newErrors.location_name = 'Location name is required';
-    } else if (formData.location_name.length < 3) {
-      newErrors.location_name = 'Location name must be at least 3 characters';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Location name is required';
+    } else if (formData.name.length > 200) {
+      newErrors.name = 'Location name must not exceed 200 characters';
     }
     
     if (!formData.warehouse_id) {
@@ -155,10 +155,11 @@ export default function StorageLocationAdmin() {
   const handleEdit = (location: StorageLocation) => {
     setEditingLocation(location);
     setFormData({
-      location_code: location.location_code,
-      location_name: location.location_name,
+      code: location.code,
+      name: location.name,
       warehouse_id: location.warehouse_id,
-      is_active: location.is_active,
+      location_type: location.location_type,
+      is_available: location.is_available,
     });
     setErrors({});
     setIsFormOpen(true);
@@ -172,18 +173,18 @@ export default function StorageLocationAdmin() {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingLocation(null);
-    setFormData({ location_code: '', location_name: '', warehouse_id: '', is_active: true });
+    setFormData({ code: '', name: '', warehouse_id: '', location_type: 'standard_rack', is_available: true });
     setErrors({});
   };
 
   const getWarehouseName = (warehouseId: string) => {
     const warehouse = warehouses.find(w => w.warehouse_id === warehouseId);
-    return warehouse?.warehouse_name || 'Unknown';
+    return warehouse?.name || 'Unknown';
   };
 
   const filteredLocations = locations.filter(loc => {
-    const matchesSearch = loc.location_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      loc.location_code.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = loc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      loc.code.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWarehouse = warehouseFilter === 'all' || loc.warehouse_id === warehouseFilter;
     return matchesSearch && matchesWarehouse;
   });
@@ -263,15 +264,15 @@ export default function StorageLocationAdmin() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <div className="flex-1">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    {location.location_name}
-                    {location.is_active ? (
-                      <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
+                    {location.name}
+                    {location.is_available ? (
+                      <Badge variant="default" className="bg-green-100 text-green-800">Available</Badge>
                     ) : (
-                      <Badge variant="secondary">Inactive</Badge>
+                      <Badge variant="secondary">Unavailable</Badge>
                     )}
                   </CardTitle>
                   <CardDescription className="mt-1">
-                    Code: {location.location_code} | Warehouse: {getWarehouseName(location.warehouse_id)}
+                    Code: {location.code} | Warehouse: {getWarehouseName(location.warehouse_id)} | Type: {location.location_type.replace('_', ' ')}
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
@@ -301,35 +302,37 @@ export default function StorageLocationAdmin() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
               <div className="space-y-2">
-                <Label htmlFor="location_code">
+                <Label htmlFor="code">
                   Location Code <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="location_code"
-                  value={formData.location_code}
-                  onChange={(e) => setFormData({ ...formData, location_code: e.target.value })}
+                  id="code"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                   placeholder="e.g., A-01-01"
                   disabled={!!editingLocation}
+                  maxLength={100}
                 />
-                {errors.location_code && (
-                  <p className="text-sm text-red-600">{errors.location_code}</p>
+                {errors.code && (
+                  <p className="text-sm text-red-600">{errors.code}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location_name">
+                <Label htmlFor="name">
                   Location Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="location_name"
-                  value={formData.location_name}
-                  onChange={(e) => setFormData({ ...formData, location_name: e.target.value })}
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Aisle A, Rack 1, Shelf 1"
+                  maxLength={200}
                 />
-                {errors.location_name && (
-                  <p className="text-sm text-red-600">{errors.location_name}</p>
+                {errors.name && (
+                  <p className="text-sm text-red-600">{errors.name}</p>
                 )}
               </div>
 
@@ -347,7 +350,7 @@ export default function StorageLocationAdmin() {
                   <SelectContent>
                     {warehouses.map((wh) => (
                       <SelectItem key={wh.warehouse_id} value={wh.warehouse_id}>
-                        {wh.warehouse_name}
+                        {wh.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -357,16 +360,39 @@ export default function StorageLocationAdmin() {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="location_type">
+                  Location Type <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.location_type}
+                  onValueChange={(value: any) => setFormData({ ...formData, location_type: value })}
+                >
+                  <SelectTrigger id="location_type">
+                    <SelectValue placeholder="Select location type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="standard_rack">Standard Rack</SelectItem>
+                    <SelectItem value="high_shelf">High Shelf</SelectItem>
+                    <SelectItem value="floor_space">Floor Space</SelectItem>
+                    <SelectItem value="cold_storage">Cold Storage</SelectItem>
+                    <SelectItem value="quarantine_zone">Quarantine Zone</SelectItem>
+                    <SelectItem value="receiving_dock">Receiving Dock</SelectItem>
+                    <SelectItem value="shipping_dock">Shipping Dock</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  id="is_active"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  id="is_available"
+                  checked={formData.is_available}
+                  onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
                   className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 />
-                <Label htmlFor="is_active" className="cursor-pointer">
-                  Active
+                <Label htmlFor="is_available" className="cursor-pointer">
+                  Available
                 </Label>
               </div>
             </div>
@@ -395,7 +421,7 @@ export default function StorageLocationAdmin() {
           <DialogHeader>
             <DialogTitle>Delete Storage Location</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete <strong>{deletingLocation?.location_name}</strong>?
+              Are you sure you want to delete <strong>{deletingLocation?.name}</strong>?
               This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
